@@ -14,7 +14,347 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      alerts: {
+        Row: {
+          card_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          last_triggered_at: string | null
+          rule_type: string
+          threshold: number
+          user_id: string
+          window_days: number
+        }
+        Insert: {
+          card_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          last_triggered_at?: string | null
+          rule_type?: string
+          threshold: number
+          user_id: string
+          window_days?: number
+        }
+        Update: {
+          card_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          last_triggered_at?: string | null
+          rule_type?: string
+          threshold?: number
+          user_id?: string
+          window_days?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alerts_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "tracked_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          card_id: string | null
+          created_at: string
+          id: string
+          is_read: boolean
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          card_id?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          card_id?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "tracked_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      price_snapshots: {
+        Row: {
+          available_items: number | null
+          captured_at: string
+          card_id: string
+          id: string
+          price_avg: number | null
+          price_from: number | null
+          price_trend: number | null
+          user_id: string
+        }
+        Insert: {
+          available_items?: number | null
+          captured_at?: string
+          card_id: string
+          id?: string
+          price_avg?: number | null
+          price_from?: number | null
+          price_trend?: number | null
+          user_id: string
+        }
+        Update: {
+          available_items?: number | null
+          captured_at?: string
+          card_id?: string
+          id?: string
+          price_avg?: number | null
+          price_from?: number | null
+          price_trend?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_snapshots_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "tracked_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          email: string | null
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
+      proxies: {
+        Row: {
+          anonymity: string | null
+          banned_until: string | null
+          country_code: string | null
+          country_name: string | null
+          created_at: string
+          failure_count: number
+          id: string
+          ip: string
+          last_checked_at: string | null
+          latency_ms: number | null
+          port: number
+          source: string
+          status: string
+          success_count: number
+          supports_https: boolean
+        }
+        Insert: {
+          anonymity?: string | null
+          banned_until?: string | null
+          country_code?: string | null
+          country_name?: string | null
+          created_at?: string
+          failure_count?: number
+          id?: string
+          ip: string
+          last_checked_at?: string | null
+          latency_ms?: number | null
+          port: number
+          source?: string
+          status?: string
+          success_count?: number
+          supports_https?: boolean
+        }
+        Update: {
+          anonymity?: string | null
+          banned_until?: string | null
+          country_code?: string | null
+          country_name?: string | null
+          created_at?: string
+          failure_count?: number
+          id?: string
+          ip?: string
+          last_checked_at?: string | null
+          latency_ms?: number | null
+          port?: number
+          source?: string
+          status?: string
+          success_count?: number
+          supports_https?: boolean
+        }
+        Relationships: []
+      }
+      scrape_logs: {
+        Row: {
+          card_id: string | null
+          created_at: string
+          duration_ms: number | null
+          http_status: number | null
+          id: string
+          message: string | null
+          method: string
+          proxy_label: string | null
+          status: string
+          target_url: string | null
+          user_id: string
+        }
+        Insert: {
+          card_id?: string | null
+          created_at?: string
+          duration_ms?: number | null
+          http_status?: number | null
+          id?: string
+          message?: string | null
+          method?: string
+          proxy_label?: string | null
+          status: string
+          target_url?: string | null
+          user_id: string
+        }
+        Update: {
+          card_id?: string | null
+          created_at?: string
+          duration_ms?: number | null
+          http_status?: number | null
+          id?: string
+          message?: string | null
+          method?: string
+          proxy_label?: string | null
+          status?: string
+          target_url?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scrape_logs_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "tracked_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tracked_cards: {
+        Row: {
+          card_url: string
+          condition: string | null
+          created_at: string
+          expansion: string | null
+          game: string
+          id: string
+          is_active: boolean
+          language: string | null
+          last_error: string | null
+          last_scraped_at: string | null
+          name: string
+          target_price: number | null
+          user_id: string
+        }
+        Insert: {
+          card_url: string
+          condition?: string | null
+          created_at?: string
+          expansion?: string | null
+          game?: string
+          id?: string
+          is_active?: boolean
+          language?: string | null
+          last_error?: string | null
+          last_scraped_at?: string | null
+          name: string
+          target_price?: number | null
+          user_id: string
+        }
+        Update: {
+          card_url?: string
+          condition?: string | null
+          created_at?: string
+          expansion?: string | null
+          game?: string
+          id?: string
+          is_active?: boolean
+          language?: string | null
+          last_error?: string | null
+          last_scraped_at?: string | null
+          name?: string
+          target_price?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_settings: {
+        Row: {
+          fallback_scraper: boolean
+          jitter_seconds: number
+          max_retries_per_card: number
+          notify_email: boolean
+          notify_in_app: boolean
+          notify_telegram: boolean
+          refresh_interval_minutes: number
+          requests_per_minute: number
+          telegram_chat_id: string | null
+          updated_at: string
+          use_proxies: boolean
+          user_id: string
+        }
+        Insert: {
+          fallback_scraper?: boolean
+          jitter_seconds?: number
+          max_retries_per_card?: number
+          notify_email?: boolean
+          notify_in_app?: boolean
+          notify_telegram?: boolean
+          refresh_interval_minutes?: number
+          requests_per_minute?: number
+          telegram_chat_id?: string | null
+          updated_at?: string
+          use_proxies?: boolean
+          user_id: string
+        }
+        Update: {
+          fallback_scraper?: boolean
+          jitter_seconds?: number
+          max_retries_per_card?: number
+          notify_email?: boolean
+          notify_in_app?: boolean
+          notify_telegram?: boolean
+          refresh_interval_minutes?: number
+          requests_per_minute?: number
+          telegram_chat_id?: string | null
+          updated_at?: string
+          use_proxies?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
