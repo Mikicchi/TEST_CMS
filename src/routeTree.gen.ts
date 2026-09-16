@@ -10,33 +10,94 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAjustesRouteImport } from './routes/_authenticated/ajustes'
+import { Route as AuthenticatedPanelRouteImport } from './routes/_authenticated/panel'
+import { Route as AuthenticatedProxiesRouteImport } from './routes/_authenticated/proxies'
+import { Route as AuthenticatedRegistroRouteImport } from './routes/_authenticated/registro'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAjustesRoute = AuthenticatedAjustesRouteImport.update({
+  id: '/ajustes',
+  path: '/ajustes',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPanelRoute = AuthenticatedPanelRouteImport.update({
+  id: '/panel',
+  path: '/panel',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProxiesRoute = AuthenticatedProxiesRouteImport.update({
+  id: '/proxies',
+  path: '/proxies',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRegistroRoute = AuthenticatedRegistroRouteImport.update({
+  id: '/registro',
+  path: '/registro',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/ajustes': typeof AuthenticatedAjustesRoute
+  '/panel': typeof AuthenticatedPanelRoute
+  '/proxies': typeof AuthenticatedProxiesRoute
+  '/registro': typeof AuthenticatedRegistroRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/ajustes': typeof AuthenticatedAjustesRoute
+  '/panel': typeof AuthenticatedPanelRoute
+  '/proxies': typeof AuthenticatedProxiesRoute
+  '/registro': typeof AuthenticatedRegistroRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/ajustes': typeof AuthenticatedAjustesRoute
+  '/_authenticated/panel': typeof AuthenticatedPanelRoute
+  '/_authenticated/proxies': typeof AuthenticatedProxiesRoute
+  '/_authenticated/registro': typeof AuthenticatedRegistroRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/auth' | '/ajustes' | '/panel' | '/proxies' | '/registro'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/auth' | '/ajustes' | '/panel' | '/proxies' | '/registro'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/ajustes'
+    | '/_authenticated/panel'
+    | '/_authenticated/proxies'
+    | '/_authenticated/registro'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +109,72 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/ajustes': {
+      id: '/_authenticated/ajustes'
+      path: '/ajustes'
+      fullPath: '/ajustes'
+      preLoaderRoute: typeof AuthenticatedAjustesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/panel': {
+      id: '/_authenticated/panel'
+      path: '/panel'
+      fullPath: '/panel'
+      preLoaderRoute: typeof AuthenticatedPanelRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/proxies': {
+      id: '/_authenticated/proxies'
+      path: '/proxies'
+      fullPath: '/proxies'
+      preLoaderRoute: typeof AuthenticatedProxiesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/registro': {
+      id: '/_authenticated/registro'
+      path: '/registro'
+      fullPath: '/registro'
+      preLoaderRoute: typeof AuthenticatedRegistroRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAjustesRoute: typeof AuthenticatedAjustesRoute
+  AuthenticatedPanelRoute: typeof AuthenticatedPanelRoute
+  AuthenticatedProxiesRoute: typeof AuthenticatedProxiesRoute
+  AuthenticatedRegistroRoute: typeof AuthenticatedRegistroRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAjustesRoute: AuthenticatedAjustesRoute,
+  AuthenticatedPanelRoute: AuthenticatedPanelRoute,
+  AuthenticatedProxiesRoute: AuthenticatedProxiesRoute,
+  AuthenticatedRegistroRoute: AuthenticatedRegistroRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
