@@ -58,6 +58,45 @@ export type Database = {
           },
         ]
       }
+      app_settings: {
+        Row: {
+          allow_direct_fetch: boolean
+          allow_fallback_scraper: boolean
+          allow_scanner: boolean
+          debug_mode: boolean
+          id: boolean
+          max_cards_per_user: number
+          max_requests_per_minute: number
+          min_refresh_interval_minutes: number
+          scraping_enabled: boolean
+          updated_at: string
+        }
+        Insert: {
+          allow_direct_fetch?: boolean
+          allow_fallback_scraper?: boolean
+          allow_scanner?: boolean
+          debug_mode?: boolean
+          id?: boolean
+          max_cards_per_user?: number
+          max_requests_per_minute?: number
+          min_refresh_interval_minutes?: number
+          scraping_enabled?: boolean
+          updated_at?: string
+        }
+        Update: {
+          allow_direct_fetch?: boolean
+          allow_fallback_scraper?: boolean
+          allow_scanner?: boolean
+          debug_mode?: boolean
+          id?: boolean
+          max_cards_per_user?: number
+          max_requests_per_minute?: number
+          min_refresh_interval_minutes?: number
+          scraping_enabled?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string | null
@@ -275,6 +314,8 @@ export type Database = {
           last_error: string | null
           last_scraped_at: string | null
           name: string
+          purchase_price: number | null
+          quantity: number
           target_price: number | null
           user_id: string
         }
@@ -290,6 +331,8 @@ export type Database = {
           last_error?: string | null
           last_scraped_at?: string | null
           name: string
+          purchase_price?: number | null
+          quantity?: number
           target_price?: number | null
           user_id: string
         }
@@ -305,7 +348,30 @@ export type Database = {
           last_error?: string | null
           last_scraped_at?: string | null
           name?: string
+          purchase_price?: number | null
+          quantity?: number
           target_price?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
         Relationships: []
@@ -355,15 +421,51 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_digests: {
+        Row: {
+          created_at: string
+          emailed: boolean
+          id: string
+          period_end: string
+          period_start: string
+          summary: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          emailed?: boolean
+          id?: string
+          period_end: string
+          period_start: string
+          summary: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          emailed?: boolean
+          id?: string
+          period_end?: string
+          period_start?: string
+          summary?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -490,6 +592,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
