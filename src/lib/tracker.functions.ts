@@ -284,7 +284,7 @@ export const runScrape = createServerFn({ method: "POST" })
 
     for (const card of cards ?? []) {
       let attempt: Awaited<ReturnType<typeof fetchDirect>> | null = null;
-      let method = "direct";
+      let method = useProxies ? "proxy" : allowDirect ? "direct" : "fallback";
       let proxyLabel: string | null = null;
 
       if (useProxies) {
@@ -308,16 +308,27 @@ export const runScrape = createServerFn({ method: "POST" })
         }
       }
 
-      if (!attempt?.ok) {
+      if (!attempt?.ok && allowDirect) {
         method = "direct";
         proxyLabel = null;
         attempt = await fetchDirect(card.card_url);
       }
 
-      if (!attempt.ok && useFallback) {
+      if (!attempt?.ok && useFallback) {
         method = "fallback";
         attempt = await fetchViaFirecrawl(card.card_url);
       }
+
+      if (!attempt) {
+        attempt = {
+          ok: false,
+          durationMs: 0,
+          message: useProxies
+            ? "No quedan proxies disponibles"
+            : "No hay ningún método de consulta permitido",
+        } as Awaited<ReturnType<typeof fetchDirect>>;
+      }
+
 
       if (attempt.ok && attempt.html) {
         const parsed = parseCardmarketProduct(attempt.html);
