@@ -189,6 +189,16 @@ export const addCard = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => addCardSchema.parse(input))
   .handler(async ({ data, context }) => {
+    const { data: app } = await context.supabase.from("app_settings").select("*").maybeSingle();
+    const { count } = await context.supabase
+      .from("tracked_cards")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", context.userId);
+    const limit = app?.max_cards_per_user ?? 200;
+    if ((count ?? 0) >= limit) {
+      throw new Error(`Has alcanzado el máximo de ${limit} cartas permitidas`);
+    }
+
     const fallbackName =
       data.name?.trim() ||
       decodeURIComponent(data.card_url.split("?")[0]!.split("/").pop() ?? "")
@@ -243,11 +253,25 @@ export const runScrape = createServerFn({ method: "POST" })
       .eq("user_id", context.userId)
       .maybeSingle();
 
-    const rpm = settings?.requests_per_minute ?? 6;
+    const { data: app } = await context.supabase.from("app_settings").select("*").maybeSingle();
+    if (app && !app.scraping_enabled) {
+      throw new Error("El administrador ha pausado la consulta de precios");
+    }
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+
+    // El acceso directo (sin proxy) solo se permite a administradores y en modo depuración.
+    const allowDirect = Boolean(isAdmin && app?.debug_mode && app?.allow_direct_fetch);
+
+    const maxRpm = app?.max_requests_per_minute ?? 10;
+    const rpm = Math.min(settings?.requests_per_minute ?? 6, maxRpm);
     const jitter = settings?.jitter_seconds ?? 8;
     const retries = settings?.max_retries_per_card ?? 3;
     const useProxies = settings?.use_proxies ?? true;
-    const useFallback = settings?.fallback_scraper ?? true;
+    const useFallback =
+      (settings?.fallback_scraper ?? true) && (app?.allow_fallback_scraper ?? true);
 
     let query = context.supabase
       .from("tracked_cards")
@@ -270,7 +294,7 @@ export const runScrape = createServerFn({ method: "POST" })
 
     for (const card of cards ?? []) {
       let attempt: Awaited<ReturnType<typeof fetchDirect>> | null = null;
-      let method = "direct";
+      let method = useProxies ? "proxy" : allowDirect ? "direct" : "fallback";
       let proxyLabel: string | null = null;
 
       if (useProxies) {
@@ -294,16 +318,27 @@ export const runScrape = createServerFn({ method: "POST" })
         }
       }
 
-      if (!attempt?.ok) {
+      if (!attempt?.ok && allowDirect) {
         method = "direct";
         proxyLabel = null;
         attempt = await fetchDirect(card.card_url);
       }
 
-      if (!attempt.ok && useFallback) {
+      if (!attempt?.ok && useFallback) {
         method = "fallback";
         attempt = await fetchViaFirecrawl(card.card_url);
       }
+
+      if (!attempt) {
+        attempt = {
+          ok: false,
+          durationMs: 0,
+          message: useProxies
+            ? "No quedan proxies disponibles"
+            : "No hay ningún método de consulta permitido",
+        } as Awaited<ReturnType<typeof fetchDirect>>;
+      }
+
 
       if (attempt.ok && attempt.html) {
         const parsed = parseCardmarketProduct(attempt.html);
