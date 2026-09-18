@@ -189,6 +189,16 @@ export const addCard = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => addCardSchema.parse(input))
   .handler(async ({ data, context }) => {
+    const { data: app } = await context.supabase.from("app_settings").select("*").maybeSingle();
+    const { count } = await context.supabase
+      .from("tracked_cards")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", context.userId);
+    const limit = app?.max_cards_per_user ?? 200;
+    if ((count ?? 0) >= limit) {
+      throw new Error(`Has alcanzado el máximo de ${limit} cartas permitidas`);
+    }
+
     const fallbackName =
       data.name?.trim() ||
       decodeURIComponent(data.card_url.split("?")[0]!.split("/").pop() ?? "")
