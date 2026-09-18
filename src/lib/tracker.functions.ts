@@ -243,11 +243,25 @@ export const runScrape = createServerFn({ method: "POST" })
       .eq("user_id", context.userId)
       .maybeSingle();
 
-    const rpm = settings?.requests_per_minute ?? 6;
+    const { data: app } = await context.supabase.from("app_settings").select("*").maybeSingle();
+    if (app && !app.scraping_enabled) {
+      throw new Error("El administrador ha pausado la consulta de precios");
+    }
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+
+    // El acceso directo (sin proxy) solo se permite a administradores y en modo depuración.
+    const allowDirect = Boolean(isAdmin && app?.debug_mode && app?.allow_direct_fetch);
+
+    const maxRpm = app?.max_requests_per_minute ?? 10;
+    const rpm = Math.min(settings?.requests_per_minute ?? 6, maxRpm);
     const jitter = settings?.jitter_seconds ?? 8;
     const retries = settings?.max_retries_per_card ?? 3;
     const useProxies = settings?.use_proxies ?? true;
-    const useFallback = settings?.fallback_scraper ?? true;
+    const useFallback =
+      (settings?.fallback_scraper ?? true) && (app?.allow_fallback_scraper ?? true);
 
     let query = context.supabase
       .from("tracked_cards")
