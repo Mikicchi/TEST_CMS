@@ -265,43 +265,72 @@ export const scanCard = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { data: app } = await context.supabase.from("app_settings").select("*").maybeSingle();
-    if (app && !app.allow_scanner) throw new Error("El escáner está desactivado por el administrador");
+    if (app && !app.allow_scanner)
+      throw new Error("El escáner está desactivado por el administrador");
 
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) throw new Error("Falta la configuración del reconocimiento de imágenes");
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+      headers: {
+        "Content-Type": "application/json",
+        "Lovable-API-Key": apiKey,
+        "X-Lovable-AIG-SDK": "fetch",
+      },
       body: JSON.stringify({
-        model: "google/gemini-3.8-flash",
-        messages: [
-          {
-            role: "system",
-            content:
-              'Identificas cartas coleccionables (Magic: The Gathering y Riftbound). Responde SOLO con JSON: {"name":"","game":"Magic|Riftbound","expansion":"","confidence":0-1}. Usa el nombre en inglés tal cual aparece en la carta.',
-          },
+        model: "openai/gpt-6-astra",
+        stream: true,
+        reasoning: { effort: "low" },
+        input: [
           {
             role: "user",
             content: [
-              { type: "text", text: "¿Qué carta es? Devuelve solo el JSON." },
-              { type: "image_url", image_url: { url: data.image } },
+              {
+                type: "input_text",
+                text: 'Identifica esta carta coleccionable (Magic: The Gathering o Riftbound). Responde SOLO con JSON: {"name":"","game":"Magic|Riftbound","expansion":"","confidence":0-1}. El nombre, en inglés, tal cual aparece impreso.',
+              },
+              { type: "input_image", image_url: data.image },
             ],
           },
         ],
       }),
     });
 
-    if (!res.ok) {
-      const body = await res.text();
+    if (!res.ok || !res.body) {
+      const body = await res.text().catch(() => "");
+      if (res.status === 429) throw new Error("Demasiadas peticiones, prueba en unos segundos");
+      if (res.status === 402)
+        throw new Error("Se han agotado los créditos de reconocimiento de imágenes");
       throw new Error(`No se pudo reconocer la carta (${res.status}): ${body.slice(0, 200)}`);
     }
 
-    const json = (await res.json()) as {
-      choices?: { message?: { content?: string } }[];
-    };
-    const raw = json.choices?.[0]?.message?.content ?? "";
-    const match = raw.match(/\{[\s\S]*\}/);
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    let text = "";
+    while (true) {
+      const chunk = await reader.read();
+      if (chunk.done) break;
+      buffer += decoder.decode(chunk.value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() ?? "";
+      for (const line of lines) {
+        if (!line.startsWith("data:")) continue;
+        const payload = line.slice(5).trim();
+        if (!payload || payload === "[DONE]") continue;
+        try {
+          const evt = JSON.parse(payload) as { type?: string; delta?: string };
+          if (evt.type === "response.output_text.delta" && typeof evt.delta === "string") {
+            text += evt.delta;
+          }
+        } catch {
+          /* ignora trozos incompletos */
+        }
+      }
+    }
+
+    const match = text.match(/\{[\s\S]*\}/);
     if (!match) throw new Error("No he podido leer la carta, prueba con mejor luz");
     const parsed = JSON.parse(match[0]) as {
       name?: string;
@@ -311,7 +340,7 @@ export const scanCard = createServerFn({ method: "POST" })
     };
     if (!parsed.name) throw new Error("No he reconocido ninguna carta en la foto");
 
-    const game = parsed.game === "Riftbound" ? "Riftbound" : "Magic";
+    const game = parsed.game?.toLowerCase().includes("rift") ? "Riftbound" : "Magic";
     const searchUrl = `https://www.cardmarket.com/en/${game}/Products/Search?searchString=${encodeURIComponent(
       parsed.name,
     )}`;
@@ -319,7 +348,7 @@ export const scanCard = createServerFn({ method: "POST" })
     return {
       name: parsed.name,
       game,
-      expansion: parsed.expansion ?? null,
+      expansion: parsed.expansion || null,
       confidence: parsed.confidence ?? null,
       searchUrl,
     };
