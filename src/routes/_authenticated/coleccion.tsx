@@ -40,7 +40,11 @@ function CollectionPage() {
   const collection = useQuery({ queryKey: ["collection"], queryFn: () => getCollection() });
 
   const update = useMutation({
-    mutationFn: (v: Parameters<typeof updateCard>[0]["data"]) => updateCard({ data: v }),
+    mutationFn: (v: {
+      id: string;
+      quantity?: number;
+      purchase_price?: number | null;
+    }) => updateCard({ data: v }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["collection"] }),
     onError: (e: Error) => toast.error(e.message),
   });
