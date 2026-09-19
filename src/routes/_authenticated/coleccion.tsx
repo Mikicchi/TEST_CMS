@@ -277,8 +277,8 @@ function Stat({
 }: {
   label: string;
   value: string;
-  hint?: string;
-  tone?: "up" | "down";
+  hint?: string | undefined;
+  tone?: "up" | "down" | undefined;
 }) {
   return (
     <div className="panel p-4">
