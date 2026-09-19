@@ -142,7 +142,7 @@ function CollectionPage() {
             label="Ganancia / pérdida"
             value={eur(totals?.pnl ?? null)}
             tone={(totals?.pnl ?? 0) >= 0 ? "up" : "down"}
-            hint={totals?.pnlPct !== null && totals?.pnlPct !== undefined ? `${totals.pnlPct.toFixed(1)}%` : undefined}
+            {...(typeof totals?.pnlPct === "number" ? { hint: `${totals.pnlPct.toFixed(1)}%` } : {})}
           />
           <Stat label="Chollos detectados" value={String(totals?.deals ?? 0)} />
         </section>
