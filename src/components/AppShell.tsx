@@ -1,11 +1,27 @@
 import { Link, useNavigate } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
-import { LayoutDashboard, Network, ScrollText, Settings2, LogOut, Spade } from "lucide-react";
+import {
+  LayoutDashboard,
+  Network,
+  ScrollText,
+  Settings2,
+  LogOut,
+  Spade,
+  Wallet,
+  ScanLine,
+  CalendarRange,
+  ShieldCheck,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { getMe } from "@/lib/admin.functions";
 
 const nav = [
   { to: "/panel", label: "Panel", icon: LayoutDashboard },
+  { to: "/coleccion", label: "Colección", icon: Wallet },
+  { to: "/escaner", label: "Escáner", icon: ScanLine },
+  { to: "/resumen", label: "Resumen", icon: CalendarRange },
   { to: "/proxies", label: "Proxies", icon: Network },
   { to: "/registro", label: "Registro", icon: ScrollText },
   { to: "/ajustes", label: "Ajustes", icon: Settings2 },
@@ -13,10 +29,14 @@ const nav = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
+  const qc = useQueryClient();
+  const me = useQuery({ queryKey: ["me"], queryFn: () => getMe() });
 
   const signOut = async () => {
+    await qc.cancelQueries();
+    qc.clear();
     await supabase.auth.signOut();
-    navigate({ to: "/auth" });
+    navigate({ to: "/auth", replace: true });
   };
 
   return (
@@ -41,6 +61,16 @@ export function AppShell({ children }: { children: ReactNode }) {
                 {item.label}
               </Link>
             ))}
+            {me.data?.isAdmin && (
+              <Link
+                to="/admin"
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-primary transition-colors hover:bg-secondary"
+                activeProps={{ className: "bg-secondary" }}
+              >
+                <ShieldCheck className="size-4" />
+                Admin
+              </Link>
+            )}
           </nav>
           <Button variant="ghost" size="sm" onClick={signOut}>
             <LogOut className="size-4" />

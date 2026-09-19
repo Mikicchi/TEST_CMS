@@ -40,7 +40,11 @@ function CollectionPage() {
   const collection = useQuery({ queryKey: ["collection"], queryFn: () => getCollection() });
 
   const update = useMutation({
-    mutationFn: (v: Parameters<typeof updateCard>[0]["data"]) => updateCard({ data: v }),
+    mutationFn: (v: {
+      id: string;
+      quantity?: number;
+      purchase_price?: number | null;
+    }) => updateCard({ data: v }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["collection"] }),
     onError: (e: Error) => toast.error(e.message),
   });
@@ -138,7 +142,7 @@ function CollectionPage() {
             label="Ganancia / pérdida"
             value={eur(totals?.pnl ?? null)}
             tone={(totals?.pnl ?? 0) >= 0 ? "up" : "down"}
-            hint={totals?.pnlPct !== null && totals?.pnlPct !== undefined ? `${totals.pnlPct.toFixed(1)}%` : undefined}
+            {...(typeof totals?.pnlPct === "number" ? { hint: `${totals.pnlPct.toFixed(1)}%` } : {})}
           />
           <Stat label="Chollos detectados" value={String(totals?.deals ?? 0)} />
         </section>
@@ -273,8 +277,8 @@ function Stat({
 }: {
   label: string;
   value: string;
-  hint?: string;
-  tone?: "up" | "down";
+  hint?: string | undefined;
+  tone?: "up" | "down" | undefined;
 }) {
   return (
     <div className="panel p-4">

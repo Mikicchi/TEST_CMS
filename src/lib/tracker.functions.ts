@@ -229,7 +229,7 @@ type RunResult = {
   ok: boolean;
   method: string;
   price: number | null;
-  message?: string;
+  message?: string | undefined;
 };
 
 export const runScrape = createServerFn({ method: "POST" })

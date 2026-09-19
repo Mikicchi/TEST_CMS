@@ -15,9 +15,11 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAjustesRouteImport } from './routes/_authenticated/ajustes'
 import { Route as AuthenticatedColeccionRouteImport } from './routes/_authenticated/coleccion'
+import { Route as AuthenticatedEscanerRouteImport } from './routes/_authenticated/escaner'
 import { Route as AuthenticatedPanelRouteImport } from './routes/_authenticated/panel'
 import { Route as AuthenticatedProxiesRouteImport } from './routes/_authenticated/proxies'
 import { Route as AuthenticatedRegistroRouteImport } from './routes/_authenticated/registro'
+import { Route as AuthenticatedResumenRouteImport } from './routes/_authenticated/resumen'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -48,6 +50,11 @@ const AuthenticatedColeccionRoute = AuthenticatedColeccionRouteImport.update({
   path: '/coleccion',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedEscanerRoute = AuthenticatedEscanerRouteImport.update({
+  id: '/escaner',
+  path: '/escaner',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPanelRoute = AuthenticatedPanelRouteImport.update({
   id: '/panel',
   path: '/panel',
@@ -63,6 +70,11 @@ const AuthenticatedRegistroRoute = AuthenticatedRegistroRouteImport.update({
   path: '/registro',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedResumenRoute = AuthenticatedResumenRouteImport.update({
+  id: '/resumen',
+  path: '/resumen',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -70,9 +82,11 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/ajustes': typeof AuthenticatedAjustesRoute
   '/coleccion': typeof AuthenticatedColeccionRoute
+  '/escaner': typeof AuthenticatedEscanerRoute
   '/panel': typeof AuthenticatedPanelRoute
   '/proxies': typeof AuthenticatedProxiesRoute
   '/registro': typeof AuthenticatedRegistroRoute
+  '/resumen': typeof AuthenticatedResumenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -80,9 +94,11 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/ajustes': typeof AuthenticatedAjustesRoute
   '/coleccion': typeof AuthenticatedColeccionRoute
+  '/escaner': typeof AuthenticatedEscanerRoute
   '/panel': typeof AuthenticatedPanelRoute
   '/proxies': typeof AuthenticatedProxiesRoute
   '/registro': typeof AuthenticatedRegistroRoute
+  '/resumen': typeof AuthenticatedResumenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -92,9 +108,11 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/ajustes': typeof AuthenticatedAjustesRoute
   '/_authenticated/coleccion': typeof AuthenticatedColeccionRoute
+  '/_authenticated/escaner': typeof AuthenticatedEscanerRoute
   '/_authenticated/panel': typeof AuthenticatedPanelRoute
   '/_authenticated/proxies': typeof AuthenticatedProxiesRoute
   '/_authenticated/registro': typeof AuthenticatedRegistroRoute
+  '/_authenticated/resumen': typeof AuthenticatedResumenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -104,9 +122,11 @@ export interface FileRouteTypes {
     | '/admin'
     | '/ajustes'
     | '/coleccion'
+    | '/escaner'
     | '/panel'
     | '/proxies'
     | '/registro'
+    | '/resumen'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -114,9 +134,11 @@ export interface FileRouteTypes {
     | '/admin'
     | '/ajustes'
     | '/coleccion'
+    | '/escaner'
     | '/panel'
     | '/proxies'
     | '/registro'
+    | '/resumen'
   id:
     | '__root__'
     | '/'
@@ -125,9 +147,11 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/ajustes'
     | '/_authenticated/coleccion'
+    | '/_authenticated/escaner'
     | '/_authenticated/panel'
     | '/_authenticated/proxies'
     | '/_authenticated/registro'
+    | '/_authenticated/resumen'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -180,6 +204,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedColeccionRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/escaner': {
+      id: '/_authenticated/escaner'
+      path: '/escaner'
+      fullPath: '/escaner'
+      preLoaderRoute: typeof AuthenticatedEscanerRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/panel': {
       id: '/_authenticated/panel'
       path: '/panel'
@@ -201,6 +232,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRegistroRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/resumen': {
+      id: '/_authenticated/resumen'
+      path: '/resumen'
+      fullPath: '/resumen'
+      preLoaderRoute: typeof AuthenticatedResumenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -208,18 +246,22 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAjustesRoute: typeof AuthenticatedAjustesRoute
   AuthenticatedColeccionRoute: typeof AuthenticatedColeccionRoute
+  AuthenticatedEscanerRoute: typeof AuthenticatedEscanerRoute
   AuthenticatedPanelRoute: typeof AuthenticatedPanelRoute
   AuthenticatedProxiesRoute: typeof AuthenticatedProxiesRoute
   AuthenticatedRegistroRoute: typeof AuthenticatedRegistroRoute
+  AuthenticatedResumenRoute: typeof AuthenticatedResumenRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAjustesRoute: AuthenticatedAjustesRoute,
   AuthenticatedColeccionRoute: AuthenticatedColeccionRoute,
+  AuthenticatedEscanerRoute: AuthenticatedEscanerRoute,
   AuthenticatedPanelRoute: AuthenticatedPanelRoute,
   AuthenticatedProxiesRoute: AuthenticatedProxiesRoute,
   AuthenticatedRegistroRoute: AuthenticatedRegistroRoute,
+  AuthenticatedResumenRoute: AuthenticatedResumenRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
