@@ -18,7 +18,11 @@ export const updateCard = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => updateSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const { id, ...fields } = data;
+    const { id, ...rest } = data;
+    const fields: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(rest)) {
+      if (value !== undefined) fields[key] = value;
+    }
     const { error } = await context.supabase
       .from("tracked_cards")
       .update(fields)
