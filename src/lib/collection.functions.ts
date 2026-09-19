@@ -19,7 +19,7 @@ export const updateCard = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => updateSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { id, ...rest } = data;
-    const fields: Record<string, unknown> = {};
+    const fields: Record<string, string | number | boolean | null> = {};
     for (const [key, value] of Object.entries(rest)) {
       if (value !== undefined) fields[key] = value;
     }
