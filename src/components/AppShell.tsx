@@ -61,6 +61,16 @@ export function AppShell({ children }: { children: ReactNode }) {
                 {item.label}
               </Link>
             ))}
+            {me.data?.isAdmin && (
+              <Link
+                to="/admin"
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-primary transition-colors hover:bg-secondary"
+                activeProps={{ className: "bg-secondary" }}
+              >
+                <ShieldCheck className="size-4" />
+                Admin
+              </Link>
+            )}
           </nav>
           <Button variant="ghost" size="sm" onClick={signOut}>
             <LogOut className="size-4" />
