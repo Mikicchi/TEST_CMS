@@ -43,6 +43,7 @@ function CollectionPage() {
       id: string;
       quantity?: number;
       purchase_price?: number | null;
+      is_tracked?: boolean;
     }) => updateCard({ data: v }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["collection"] }),
     onError: (e: Error) => toast.error(e.message),
