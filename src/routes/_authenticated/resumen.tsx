@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ArrowDownRight, ArrowUpRight, RefreshCw } from "lucide-react";
-import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { buildWeeklyDigest, listDigests } from "@/lib/collection.functions";
 
@@ -44,7 +43,6 @@ function DigestPage() {
   const summary = latest ? (latest.summary as unknown as Summary) : null;
 
   return (
-    <AppShell>
       <div className="space-y-6">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -91,7 +89,6 @@ function DigestPage() {
           </>
         )}
       </div>
-    </AppShell>
   );
 }
 

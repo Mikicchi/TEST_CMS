@@ -3,7 +3,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Sparkles, Upload, TrendingDown, TrendingUp } from "lucide-react";
-import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -107,7 +106,6 @@ function CollectionPage() {
   };
 
   return (
-    <AppShell>
       <div className="space-y-8">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -265,7 +263,6 @@ function CollectionPage() {
           </div>
         </section>
       </div>
-    </AppShell>
   );
 }
 
