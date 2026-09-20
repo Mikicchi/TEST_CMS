@@ -111,7 +111,8 @@ function CollectionPage() {
           <div>
             <h1 className="font-display text-2xl font-semibold">Mi colección</h1>
             <p className="text-sm text-muted-foreground">
-              Cuánto vale lo que sigues, cuánto ganas y qué cartas están de chollo.
+              Las cartas que tienes. El seguimiento de precios es aparte: activa «Seguir» en las
+              que quieras vigilar y aparecerán en el Panel.
             </p>
           </div>
           <div>
