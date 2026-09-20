@@ -15,6 +15,13 @@
       "when": 1789632809940,
       "tag": "0001_admin_roles_and_collection",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789924603722,
+      "tag": "0002_separate_collection_and_tracking",
+      "breakpoints": true
     }
   ]
 }

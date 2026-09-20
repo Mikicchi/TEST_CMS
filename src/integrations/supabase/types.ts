@@ -309,7 +309,9 @@ export type Database = {
           expansion: string | null
           game: string
           id: string
+          in_collection: boolean
           is_active: boolean
+          is_tracked: boolean
           language: string | null
           last_error: string | null
           last_scraped_at: string | null
@@ -326,7 +328,9 @@ export type Database = {
           expansion?: string | null
           game?: string
           id?: string
+          in_collection?: boolean
           is_active?: boolean
+          is_tracked?: boolean
           language?: string | null
           last_error?: string | null
           last_scraped_at?: string | null
@@ -343,7 +347,9 @@ export type Database = {
           expansion?: string | null
           game?: string
           id?: string
+          in_collection?: boolean
           is_active?: boolean
+          is_tracked?: boolean
           language?: string | null
           last_error?: string | null
           last_scraped_at?: string | null
