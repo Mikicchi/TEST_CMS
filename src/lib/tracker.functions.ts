@@ -130,6 +130,7 @@ export const listCards = createServerFn({ method: "GET" })
       .from("tracked_cards")
       .select("*")
       .eq("user_id", context.userId)
+      .eq("is_tracked", true)
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
 
@@ -183,6 +184,8 @@ const addCardSchema = z.object({
   game: z.string().min(1).max(60),
   name: z.string().max(200).optional(),
   target_price: z.number().nullable().optional(),
+  in_collection: z.boolean().optional(),
+  is_tracked: z.boolean().optional(),
 });
 
 export const addCard = createServerFn({ method: "POST" })
