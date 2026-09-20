@@ -193,6 +193,7 @@ function CollectionPage() {
                   <th className="py-2">Media</th>
                   <th className="py-2">Precio objetivo</th>
                   <th className="py-2">Ganancia</th>
+                  <th className="py-2">Seguimiento</th>
                 </tr>
               </thead>
               <tbody>
