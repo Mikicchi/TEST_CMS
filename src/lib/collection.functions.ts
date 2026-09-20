@@ -12,6 +12,8 @@ const updateSchema = z.object({
   condition: z.string().max(10).nullable().optional(),
   language: z.string().max(20).nullable().optional(),
   is_active: z.boolean().optional(),
+  in_collection: z.boolean().optional(),
+  is_tracked: z.boolean().optional(),
 });
 
 export const updateCard = createServerFn({ method: "POST" })
@@ -27,11 +29,84 @@ export const updateCard = createServerFn({ method: "POST" })
         ...(data.condition !== undefined ? { condition: data.condition } : {}),
         ...(data.language !== undefined ? { language: data.language } : {}),
         ...(data.is_active !== undefined ? { is_active: data.is_active } : {}),
+        ...(data.in_collection !== undefined ? { in_collection: data.in_collection } : {}),
+        ...(data.is_tracked !== undefined ? { is_tracked: data.is_tracked } : {}),
       })
       .eq("id", data.id)
       .eq("user_id", context.userId);
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+/* --------------------- scanner session -> collection ------------------- */
+
+const scanSessionSchema = z.object({
+  rows: z
+    .array(
+      z.object({
+        name: z.string().min(1).max(200),
+        game: z.string().min(1).max(60),
+        expansion: z.string().max(120).nullable().optional(),
+        card_url: z.string().url(),
+        quantity: z.number().int().min(1).max(999),
+      }),
+    )
+    .min(1)
+    .max(100),
+  track: z.boolean().optional(),
+});
+
+export const saveScanSession = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => scanSessionSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: app } = await context.supabase.from("app_settings").select("*").maybeSingle();
+    const limit = app?.max_cards_per_user ?? 200;
+
+    let added = 0;
+    let updated = 0;
+
+    for (const row of data.rows) {
+      const { data: existing } = await context.supabase
+        .from("tracked_cards")
+        .select("id, quantity")
+        .eq("user_id", context.userId)
+        .eq("card_url", row.card_url)
+        .maybeSingle();
+
+      if (existing) {
+        await context.supabase
+          .from("tracked_cards")
+          .update({
+            quantity: (existing.quantity ?? 1) + row.quantity,
+            in_collection: true,
+            ...(data.track ? { is_tracked: true } : {}),
+          })
+          .eq("id", existing.id);
+        updated += 1;
+        continue;
+      }
+
+      const { count } = await context.supabase
+        .from("tracked_cards")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", context.userId);
+      if ((count ?? 0) >= limit) break;
+
+      const { error } = await context.supabase.from("tracked_cards").insert({
+        user_id: context.userId,
+        card_url: row.card_url,
+        name: row.name,
+        game: row.game,
+        expansion: row.expansion ?? null,
+        quantity: row.quantity,
+        in_collection: true,
+        is_tracked: data.track ?? false,
+      });
+      if (!error) added += 1;
+    }
+
+    return { added, updated, limit };
   });
 
 /* ------------------------------- CSV --------------------------------- */
@@ -87,6 +162,8 @@ export const importCards = createServerFn({ method: "POST" })
       purchase_price: r.purchase_price ?? null,
       condition: r.condition ?? null,
       language: r.language ?? null,
+      in_collection: true,
+      is_tracked: false,
     }));
 
     const { error, data: inserted } = await context.supabase
@@ -110,7 +187,8 @@ export const getCollection = createServerFn({ method: "GET" })
     const { data: cards } = await context.supabase
       .from("tracked_cards")
       .select("*")
-      .eq("user_id", context.userId);
+      .eq("user_id", context.userId)
+      .eq("in_collection", true);
     const { data: snaps } = await context.supabase
       .from("price_snapshots")
       .select("card_id, price_from, price_avg, captured_at")
@@ -153,6 +231,7 @@ export const getCollection = createServerFn({ method: "GET" })
         card_url: card.card_url,
         condition: card.condition,
         language: card.language,
+        is_tracked: card.is_tracked,
         quantity: qty,
         purchase_price: card.purchase_price !== null ? Number(card.purchase_price) : null,
         target_price: card.target_price !== null ? Number(card.target_price) : null,

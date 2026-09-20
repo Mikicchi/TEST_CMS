@@ -3,7 +3,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ShieldCheck, ShieldOff, AlertTriangle } from "lucide-react";
-import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -86,15 +85,12 @@ function AdminPage() {
 
   if (me.isLoading) {
     return (
-      <AppShell>
         <p className="text-sm text-muted-foreground">Cargando…</p>
-      </AppShell>
     );
   }
 
   if (!isAdmin) {
     return (
-      <AppShell>
         <div className="panel mx-auto max-w-md p-8 text-center">
           <ShieldOff className="mx-auto size-8 text-muted-foreground" />
           <h1 className="mt-4 font-display text-xl font-semibold">Zona restringida</h1>
@@ -102,14 +98,12 @@ function AdminPage() {
             Solo los administradores pueden ver esta página.
           </p>
         </div>
-      </AppShell>
     );
   }
 
   const s = stats.data;
 
   return (
-    <AppShell>
       <div className="space-y-8">
         <header>
           <h1 className="font-display text-2xl font-semibold">Administración</h1>
@@ -250,7 +244,6 @@ function AdminPage() {
           </div>
         </section>
       </div>
-    </AppShell>
   );
 }
 

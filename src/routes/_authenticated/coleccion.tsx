@@ -3,7 +3,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Sparkles, Upload, TrendingDown, TrendingUp } from "lucide-react";
-import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,6 +43,7 @@ function CollectionPage() {
       id: string;
       quantity?: number;
       purchase_price?: number | null;
+      is_tracked?: boolean;
     }) => updateCard({ data: v }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["collection"] }),
     onError: (e: Error) => toast.error(e.message),
@@ -107,13 +107,13 @@ function CollectionPage() {
   };
 
   return (
-    <AppShell>
       <div className="space-y-8">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="font-display text-2xl font-semibold">Mi colección</h1>
             <p className="text-sm text-muted-foreground">
-              Cuánto vale lo que sigues, cuánto ganas y qué cartas están de chollo.
+              Las cartas que tienes. El seguimiento de precios es aparte: activa «Seguir» en las
+              que quieras vigilar y aparecerán en el Panel.
             </p>
           </div>
           <div>
@@ -194,6 +194,7 @@ function CollectionPage() {
                   <th className="py-2">Media</th>
                   <th className="py-2">Precio objetivo</th>
                   <th className="py-2">Ganancia</th>
+                  <th className="py-2">Seguimiento</th>
                 </tr>
               </thead>
               <tbody>
@@ -253,6 +254,15 @@ function CollectionPage() {
                         </span>
                       )}
                     </td>
+                    <td className="py-2">
+                      <Button
+                        size="sm"
+                        variant={i.is_tracked ? "default" : "secondary"}
+                        onClick={() => update.mutate({ id: i.id, is_tracked: !i.is_tracked })}
+                      >
+                        {i.is_tracked ? "Siguiendo" : "Seguir"}
+                      </Button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -265,7 +275,6 @@ function CollectionPage() {
           </div>
         </section>
       </div>
-    </AppShell>
   );
 }
 

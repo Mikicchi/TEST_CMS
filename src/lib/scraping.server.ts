@@ -96,11 +96,141 @@ async function timedFetch(url: string, init: RequestInit, timeoutMs: number) {
   }
 }
 
-/**
- * Attempts to load a URL through an open HTTP forward proxy using absolute-URI
- * form. Many free proxies accept this; those that don't simply fail and get
- * marked as dead so rotation moves on.
- */
+/* ------------------------- raw HTTP proxy client ------------------------
+ * `fetch()` cannot speak the HTTP proxy protocol, so the previous
+ * implementation ("http://ip:port/https://target") never worked: every proxy
+ * came back dead. We talk to the proxy over a raw TCP socket instead:
+ *  - plain http targets  -> absolute-URI request line
+ *  - https targets       -> CONNECT tunnel + TLS upgrade
+ * ---------------------------------------------------------------------- */
+
+type RawResponse = { status: number; body: string };
+
+function dechunk(body: string): string {
+  let out = "";
+  let i = 0;
+  while (i < body.length) {
+    const nl = body.indexOf("\r\n", i);
+    if (nl === -1) break;
+    const size = Number.parseInt(body.slice(i, nl).trim(), 16);
+    if (!Number.isFinite(size) || size <= 0) break;
+    out += body.slice(nl + 2, nl + 2 + size);
+    i = nl + 2 + size + 2;
+  }
+  return out || body;
+}
+
+function buildRequest(target: URL, absolute: boolean): string {
+  const path = absolute ? target.toString() : `${target.pathname}${target.search}`;
+  return (
+    `GET ${path} HTTP/1.1\r\n` +
+    `Host: ${target.host}\r\n` +
+    `User-Agent: ${randomUserAgent()}\r\n` +
+    `Accept: text/html,application/xhtml+xml\r\n` +
+    `Accept-Language: es-ES,es;q=0.9,en;q=0.8\r\n` +
+    `Accept-Encoding: identity\r\n` +
+    `Connection: close\r\n\r\n`
+  );
+}
+
+function parseRaw(raw: string): RawResponse {
+  const split = raw.indexOf("\r\n\r\n");
+  const head = split === -1 ? raw : raw.slice(0, split);
+  let body = split === -1 ? "" : raw.slice(split + 4);
+  const status = Number.parseInt(head.split(" ")[1] ?? "0", 10) || 0;
+  if (/transfer-encoding:\s*chunked/i.test(head)) body = dechunk(body);
+  return { status, body };
+}
+
+async function proxyRequest(
+  targetUrl: string,
+  proxy: { ip: string; port: number },
+  timeoutMs: number,
+): Promise<RawResponse> {
+  const net = await import("node:net");
+  const target = new URL(targetUrl);
+  const secure = target.protocol === "https:";
+
+  return await new Promise<RawResponse>((resolve, reject) => {
+    let settled = false;
+    const socket = net.connect({ host: proxy.ip, port: proxy.port });
+    const timer = setTimeout(() => {
+      if (!settled) {
+        settled = true;
+        socket.destroy();
+        reject(new Error("Tiempo de espera agotado con el proxy"));
+      }
+    }, timeoutMs);
+
+    const fail = (err: Error) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      socket.destroy();
+      reject(err);
+    };
+    const done = (raw: string) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolve(parseRaw(raw));
+    };
+
+    socket.on("error", fail);
+
+    socket.on("connect", () => {
+      if (!secure) {
+        let raw = "";
+        socket.on("data", (d: Buffer) => {
+          raw += d.toString("utf8");
+        });
+        socket.on("end", () => done(raw));
+        socket.on("close", () => done(raw));
+        socket.write(buildRequest(target, true));
+        return;
+      }
+
+      // https: open a tunnel first
+      let handshake = "";
+      const onHandshake = async (d: Buffer) => {
+        handshake += d.toString("utf8");
+        if (!handshake.includes("\r\n\r\n")) return;
+        socket.off("data", onHandshake);
+        const code = Number.parseInt(handshake.split(" ")[1] ?? "0", 10);
+        if (code !== 200) {
+          fail(new Error(`El proxy rechazó el túnel (${code || "sin respuesta"})`));
+          return;
+        }
+        try {
+          const tls = await import("node:tls");
+          const secured = tls.connect({
+            socket,
+            servername: target.hostname,
+            rejectUnauthorized: false,
+          });
+          let raw = "";
+          secured.on("error", fail);
+          secured.on("data", (chunk: Buffer) => {
+            raw += chunk.toString("utf8");
+          });
+          secured.on("end", () => done(raw));
+          secured.on("close", () => done(raw));
+          secured.on("secureConnect", () => secured.write(buildRequest(target, false)));
+        } catch {
+          fail(new Error("Este entorno no permite túneles cifrados a través del proxy"));
+        }
+      };
+      socket.on("data", onHandshake);
+      socket.write(
+        `CONNECT ${target.hostname}:${target.port || 443} HTTP/1.1\r\nHost: ${target.hostname}:${
+          target.port || 443
+        }\r\nProxy-Connection: keep-alive\r\n\r\n`,
+      );
+    });
+  });
+}
+
+/** Loads a URL through an open HTTP forward proxy. */
 export async function fetchThroughProxy(
   targetUrl: string,
   proxy: { ip: string; port: number },
@@ -108,31 +238,28 @@ export async function fetchThroughProxy(
 ): Promise<FetchAttempt> {
   const started = Date.now();
   try {
-    const res = await timedFetch(
-      `http://${proxy.ip}:${proxy.port}/${targetUrl}`,
-      {
-        headers: {
-          "user-agent": randomUserAgent(),
-          accept: "text/html,application/xhtml+xml",
-          "accept-language": "es-ES,es;q=0.9,en;q=0.8",
-        },
-        redirect: "follow",
-      },
-      timeoutMs,
-    );
-    const html = await res.text();
+    const res = await proxyRequest(targetUrl, proxy, timeoutMs);
     const durationMs = Date.now() - started;
-    if (!res.ok || html.length < 500) {
+    const html = res.body;
+    if (res.status === 0) {
+      return { ok: false, durationMs, message: "El proxy no devolvió una respuesta válida" };
+    }
+    if (looksBlocked(html, res.status)) {
       return {
         ok: false,
         httpStatus: res.status,
         durationMs,
-        blocked: looksBlocked(html, res.status),
-        message: `Respuesta no válida del proxy (${res.status})`,
+        blocked: true,
+        message: "Bloqueo detectado en la respuesta",
       };
     }
-    if (looksBlocked(html, res.status)) {
-      return { ok: false, httpStatus: res.status, durationMs, blocked: true, message: "Bloqueo detectado" };
+    if (res.status >= 400 || html.length < 200) {
+      return {
+        ok: false,
+        httpStatus: res.status,
+        durationMs,
+        message: `Respuesta no válida del proxy (${res.status})`,
+      };
     }
     return { ok: true, html, httpStatus: res.status, durationMs };
   } catch (err) {
