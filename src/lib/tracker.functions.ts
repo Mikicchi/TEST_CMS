@@ -217,6 +217,8 @@ export const addCard = createServerFn({ method: "POST" })
         game: data.game,
         name: fallbackName,
         target_price: data.target_price ?? null,
+        in_collection: data.in_collection ?? false,
+        is_tracked: data.is_tracked ?? true,
       })
       .select("*")
       .single();
