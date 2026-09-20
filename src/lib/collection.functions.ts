@@ -162,6 +162,8 @@ export const importCards = createServerFn({ method: "POST" })
       purchase_price: r.purchase_price ?? null,
       condition: r.condition ?? null,
       language: r.language ?? null,
+      in_collection: true,
+      is_tracked: false,
     }));
 
     const { error, data: inserted } = await context.supabase
@@ -185,7 +187,8 @@ export const getCollection = createServerFn({ method: "GET" })
     const { data: cards } = await context.supabase
       .from("tracked_cards")
       .select("*")
-      .eq("user_id", context.userId);
+      .eq("user_id", context.userId)
+      .eq("in_collection", true);
     const { data: snaps } = await context.supabase
       .from("price_snapshots")
       .select("card_id, price_from, price_avg, captured_at")
