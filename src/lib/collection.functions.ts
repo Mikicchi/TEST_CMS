@@ -231,6 +231,7 @@ export const getCollection = createServerFn({ method: "GET" })
         card_url: card.card_url,
         condition: card.condition,
         language: card.language,
+        is_tracked: card.is_tracked,
         quantity: qty,
         purchase_price: card.purchase_price !== null ? Number(card.purchase_price) : null,
         target_price: card.target_price !== null ? Number(card.target_price) : null,
