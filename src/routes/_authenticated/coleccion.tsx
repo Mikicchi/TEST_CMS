@@ -253,6 +253,15 @@ function CollectionPage() {
                         </span>
                       )}
                     </td>
+                    <td className="py-2">
+                      <Button
+                        size="sm"
+                        variant={i.is_tracked ? "default" : "secondary"}
+                        onClick={() => update.mutate({ id: i.id, is_tracked: !i.is_tracked })}
+                      >
+                        {i.is_tracked ? "Siguiendo" : "Seguir"}
+                      </Button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
