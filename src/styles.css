@@ -35,6 +35,7 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -58,13 +59,13 @@
   --card-foreground: oklch(0.95 0.008 250);
   --popover: oklch(0.213 0.024 252);
   --popover-foreground: oklch(0.95 0.008 250);
-  --primary: oklch(0.63 0.13 200); /* Purple instead of blue */
+  --primary: oklch(0.79 0.148 78);
   --primary-foreground: oklch(0.2 0.03 70);
   --secondary: oklch(0.27 0.028 252);
   --secondary-foreground: oklch(0.93 0.01 250);
   --muted: oklch(0.26 0.024 252);
   --muted-foreground: oklch(0.68 0.02 250);
-  --accent: oklch(0.63 0.13 200); /* Purple accent */
+  --accent: oklch(0.63 0.13 200);
   --accent-foreground: oklch(0.16 0.02 250);
   --destructive: oklch(0.62 0.2 22);
   --destructive-foreground: oklch(0.97 0.01 250);
@@ -74,20 +75,20 @@
   --warning-foreground: oklch(0.2 0.03 85);
   --border: oklch(0.31 0.026 252);
   --input: oklch(0.31 0.026 252);
-  --ring: oklch(0.63 0.13 200); /* Purple ring */
-  --chart-1: oklch(0.63 0.13 200);
+  --ring: oklch(0.79 0.148 78);
+  --chart-1: oklch(0.79 0.148 78);
   --chart-2: oklch(0.7 0.16 155);
   --chart-3: oklch(0.63 0.13 200);
   --chart-4: oklch(0.62 0.2 22);
   --chart-5: oklch(0.75 0.09 300);
   --sidebar: oklch(0.2 0.023 252);
   --sidebar-foreground: oklch(0.93 0.01 250);
-  --sidebar-primary: oklch(0.63 0.13 200); /* Purple sidebar */
+  --sidebar-primary: oklch(0.79 0.148 78);
   --sidebar-primary-foreground: oklch(0.2 0.03 70);
   --sidebar-accent: oklch(0.27 0.028 252);
   --sidebar-accent-foreground: oklch(0.93 0.01 250);
   --sidebar-border: oklch(0.29 0.026 252);
-  --sidebar-ring: oklch(0.63 0.13 200); /* Purple sidebar ring */
+  --sidebar-ring: oklch(0.79 0.148 78);
 }
 
 .dark {
@@ -105,8 +106,8 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     background-image:
-      radial-gradient(60rem 40rem at 90% -10%, oklch(0.63 0.13 200 / 0.07), transparent 60%), /* Purple gradient */
-      radial-gradient(50rem 35rem at 0% 0%, oklch(0.63 0.13 200 / 0.05), transparent 60%); /* Purple gradient */
+      radial-gradient(60rem 40rem at 90% -10%, oklch(0.79 0.148 78 / 0.07), transparent 60%),
+      radial-gradient(50rem 35rem at 0% 0%, oklch(0.63 0.13 200 / 0.07), transparent 60%);
     background-attachment: fixed;
   }
 
@@ -126,12 +127,12 @@
   box-shadow: 0 1px 0 oklch(1 0 0 / 0.04) inset;
 }
 
-@utility text-gradient-purple {
+@utility text-gradient-gold {
   background-image: linear-gradient(
     100deg,
-    oklch(0.8 0.15 220),
-    oklch(0.63 0.13 200),
-    oklch(0.55 0.1 180)
+    oklch(0.88 0.13 90),
+    oklch(0.79 0.148 78),
+    oklch(0.72 0.12 60)
   );
   background-clip: text;
   color: transparent;
