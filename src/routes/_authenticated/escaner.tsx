@@ -92,7 +92,6 @@ function ScannerPage() {
   const handleResult = useCallback(
     (r: Recognised) => {
       if (lastKey && keyOf(r) === lastKey) {
-        // Puede ser la misma carta reescaneada: preguntamos antes de sumar.
         setDuplicate(r);
         return;
       }
@@ -253,11 +252,7 @@ function ScannerPage() {
                   <Button size="icon" variant="ghost" onClick={() => changeQty(keyOf(i), 1)}>
                     <Plus className="size-3" />
                   </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => changeQty(keyOf(i), -i.quantity)}
-                  >
+                  <Button size="icon" variant="ghost" onClick={() => changeQty(keyOf(i), -i.quantity)}>
                     <Trash2 className="size-3" />
                   </Button>
                 </div>
@@ -275,11 +270,7 @@ function ScannerPage() {
             Seguir también sus precios
           </label>
 
-          <Button
-            className="mt-3"
-            disabled={items.length === 0 || save.isPending}
-            onClick={() => save.mutate()}
-          >
+          <Button className="mt-3" disabled={items.length === 0 || save.isPending} onClick={() => save.mutate()}>
             <Save className="size-4" />
             Guardar en mi colección
           </Button>

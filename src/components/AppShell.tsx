@@ -1,84 +1,22 @@
-import { Link, useNavigate } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import type { ReactNode } from "react";
-import {
-  LayoutDashboard,
-  Network,
-  ScrollText,
-  Settings2,
-  LogOut,
-  Spade,
-  Wallet,
-  ScanLine,
-  CalendarRange,
-  ShieldCheck,
-} from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { getMe } from "@/lib/admin.functions";
-
-const nav = [
-  { to: "/panel", label: "Panel", icon: LayoutDashboard },
-  { to: "/coleccion", label: "Colección", icon: Wallet },
-  { to: "/escaner", label: "Escáner", icon: ScanLine },
-  { to: "/resumen", label: "Resumen", icon: CalendarRange },
-  { to: "/proxies", label: "Proxies", icon: Network },
-  { to: "/registro", label: "Registro", icon: ScrollText },
-  { to: "/ajustes", label: "Ajustes", icon: Settings2 },
-] as const;
+import { ReactNode, useState } from "react";
+import { Sidebar } from "@/components/Sidebar";
+import { Header } from "@/components/Header";
+import { cn } from "@/lib/utils";
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const navigate = useNavigate();
-  const qc = useQueryClient();
-  const me = useQuery({ queryKey: ["me"], queryFn: () => getMe() });
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  const signOut = async () => {
-    await qc.cancelQueries();
-    qc.clear();
-    await supabase.auth.signOut();
-    navigate({ to: "/auth", replace: true });
-  };
+  const toggleSidebar = () => setSidebarOpen((prev) => !prev);
 
   return (
-    <div className="min-h-screen">
-      <header className="sticky top-0 z-30 border-b border-border/70 bg-background/85 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-3">
-          <Link to="/panel" className="mr-4 flex items-center gap-2">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-primary/15 text-primary">
-              <Spade className="size-4" />
-            </span>
-            <span className="font-display text-lg font-semibold tracking-tight">Cardtrack</span>
-          </Link>
-          <nav className="flex flex-1 items-center gap-1 overflow-x-auto">
-            {nav.map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-                activeProps={{ className: "bg-secondary text-foreground" }}
-              >
-                <item.icon className="size-4" />
-                {item.label}
-              </Link>
-            ))}
-            {me.data?.isAdmin && (
-              <Link
-                to="/admin"
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-primary transition-colors hover:bg-secondary"
-                activeProps={{ className: "bg-secondary" }}
-              >
-                <ShieldCheck className="size-4" />
-                Admin
-              </Link>
-            )}
-          </nav>
-          <Button variant="ghost" size="sm" onClick={signOut}>
-            <LogOut className="size-4" />
-            Salir
-          </Button>
-        </div>
-      </header>
-      <main className="mx-auto max-w-7xl px-4 py-8">{children}</main>
+    <div className="flex min-h-screen bg-background">
+      <Sidebar open={sidebarOpen} onOpenChange={setSidebarOpen} />
+      <div className="flex-1 flex flex-col">
+        <Header onSidebarToggle={toggleSidebar} />
+        <main className="flex-1 p-6 overflow-y-auto">
+          <div className="p-4">{children}</div>
+        </main>
+      </div>
     </div>
   );
 }

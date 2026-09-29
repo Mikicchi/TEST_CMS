@@ -57,14 +57,17 @@ function Panel() {
   const remove = useServerFn(deleteCard);
   const run = useServerFn(runScrape);
 
+
   const [url, setUrl] = useState("");
   const [game, setGame] = useState(GAMES[0]!);
   const [target, setTarget] = useState("");
   const [gameFilter, setGameFilter] = useState("todos");
   const [expansionFilter, setExpansionFilter] = useState("todas");
 
+
   const cardsQuery = useQuery({ queryKey: ["cards"], queryFn: () => fetchCards() });
   const cards = cardsQuery.data ?? [];
+
 
   const addMutation = useMutation({
     mutationFn: () =>
@@ -84,6 +87,7 @@ function Panel() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+
   const runMutation = useMutation({
     mutationFn: () => run({ data: { cardId: null } }),
     onSuccess: (res) => {
@@ -97,21 +101,25 @@ function Panel() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+
   const removeMutation = useMutation({
     mutationFn: (id: string) => remove({ data: { id } }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["cards"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["cards"] });
   });
+
 
   const expansions = useMemo(
     () => Array.from(new Set(cards.map((c) => c.expansion).filter(Boolean))) as string[],
     [cards],
   );
 
+
   const filtered = cards.filter(
     (c) =>
       (gameFilter === "todos" || c.game === gameFilter) &&
       (expansionFilter === "todas" || c.expansion === expansionFilter),
   );
+
 
   const chartData = useMemo(() => {
     const byDate = new Map<string, Record<string, number | string>>();
@@ -129,6 +137,7 @@ function Panel() {
     return Array.from(byDate.values());
   }, [filtered]);
 
+
   const series = filtered.slice(0, 5).map((c) => c.name.slice(0, 22));
   const colors = [
     "var(--chart-1)",
@@ -138,15 +147,18 @@ function Panel() {
     "var(--chart-5)",
   ];
 
+
   const cheapest = [...filtered]
     .filter((c) => c.latest?.price_from !== null && c.latest?.price_from !== undefined)
     .sort((a, b) => Number(a.latest!.price_from) - Number(b.latest!.price_from))
     .slice(0, 10);
 
+
   const watchlist = [...filtered]
     .filter((c) => c.changePct !== null)
     .sort((a, b) => Math.abs(b.changePct!) - Math.abs(a.changePct!))
     .slice(0, 5);
+
 
   return (
     <div className="space-y-8">

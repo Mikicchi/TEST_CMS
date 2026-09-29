@@ -107,174 +107,174 @@ function CollectionPage() {
   };
 
   return (
-      <div className="space-y-8">
-        <header className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="font-display text-2xl font-semibold">Mi colección</h1>
-            <p className="text-sm text-muted-foreground">
-              Las cartas que tienes. El seguimiento de precios es aparte: activa «Seguir» en las
-              que quieras vigilar y aparecerán en el Panel.
-            </p>
-          </div>
-          <div>
-            <input
-              ref={fileRef}
-              type="file"
-              accept=".csv,text/csv,text/plain"
-              className="hidden"
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) void onFile(f);
-                e.target.value = "";
-              }}
-            />
-            <Button variant="secondary" onClick={() => fileRef.current?.click()}>
-              <Upload className="size-4" />
-              Importar CSV
-            </Button>
-          </div>
-        </header>
-
-        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Stat label="Valor actual" value={eur(totals?.value ?? null)} />
-          <Stat label="Coste de compra" value={eur(totals?.cost ?? null)} />
-          <Stat
-            label="Ganancia / pérdida"
-            value={eur(totals?.pnl ?? null)}
-            tone={(totals?.pnl ?? 0) >= 0 ? "up" : "down"}
-            {...(typeof totals?.pnlPct === "number" ? { hint: `${totals.pnlPct.toFixed(1)}%` } : {})}
+    <div className="space-y-8">
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="font-display text-2xl font-semibold">Mi colección</h1>
+          <p className="text-sm text-muted-foreground">
+            Las cartas que tienes. El seguimiento de precios es aparte: activa «Seguir» en las
+            que quieras vigilar y aparecerán en el Panel.
+          </p>
+        </div>
+        <div>
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".csv,text/csv,text/plain"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) void onFile(f);
+              e.target.value = "";
+            }}
           />
-          <Stat label="Chollos detectados" value={String(totals?.deals ?? 0)} />
-        </section>
+          <Button variant="secondary" onClick={() => fileRef.current?.click()}>
+            <Upload className="size-4" />
+            Importar CSV
+          </Button>
+        </div>
+      </header>
 
-        <section className="panel p-6">
-          <div className="flex flex-wrap items-center gap-3">
-            <Button
-              size="sm"
-              variant={onlyDeals ? "default" : "secondary"}
-              onClick={() => setOnlyDeals((v) => !v)}
-            >
-              <Sparkles className="size-4" />
-              Solo chollos
-            </Button>
-            <select
-              value={condition}
-              onChange={(e) => setCondition(e.target.value)}
-              className="h-9 rounded-md border border-input bg-background px-3 text-sm"
-            >
-              <option value="">Todos los estados</option>
-              {conditions.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              className="h-9 rounded-md border border-input bg-background px-3 text-sm"
-            >
-              <option value="">Todos los idiomas</option>
-              {languages.map((l) => (
-                <option key={l} value={l}>
-                  {l}
-                </option>
-              ))}
-            </select>
-          </div>
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Stat label="Valor actual" value={eur(totals?.value ?? null)} />
+        <Stat label="Coste de compra" value={eur(totals?.cost ?? null)} />
+        <Stat
+          label="Ganancia / pérdida"
+          value={eur(totals?.pnl ?? null)}
+          tone={(totals?.pnl ?? 0) >= 0 ? "up" : "down"}
+          {...(typeof totals?.pnlPct === "number" ? { hint: `${totals.pnlPct.toFixed(1)}%` } : {})}
+        />
+        <Stat label="Chollos detectados" value={String(totals?.deals ?? 0)} />
+      </section>
 
-          <div className="mt-5 overflow-x-auto">
-            <table className="w-full min-w-[820px] text-sm">
-              <thead className="text-left text-xs uppercase tracking-wide text-muted-foreground">
-                <tr>
-                  <th className="py-2">Carta</th>
-                  <th className="py-2">Uds.</th>
-                  <th className="py-2">Pagado</th>
-                  <th className="py-2">Precio hoy</th>
-                  <th className="py-2">Media</th>
-                  <th className="py-2">Precio objetivo</th>
-                  <th className="py-2">Ganancia</th>
-                  <th className="py-2">Seguimiento</th>
-                </tr>
-              </thead>
-              <tbody>
-                {visible.map((i) => (
-                  <tr key={i.id} className="border-t border-border/60">
-                    <td className="py-2">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{i.name}</span>
-                        {i.isDeal && (
-                          <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] uppercase text-primary">
-                            chollo
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-xs text-muted-foreground">
-                        {[i.game, i.expansion, i.condition, i.language].filter(Boolean).join(" · ")}
-                      </span>
-                    </td>
-                    <td className="py-2">
-                      <Input
-                        type="number"
-                        defaultValue={i.quantity}
-                        className="h-8 w-16"
-                        onBlur={(e) =>
-                          update.mutate({ id: i.id, quantity: Number(e.target.value) || 1 })
-                        }
-                      />
-                    </td>
-                    <td className="py-2">
-                      <Input
-                        type="number"
-                        step="0.01"
-                        defaultValue={i.purchase_price ?? ""}
-                        placeholder="—"
-                        className="h-8 w-24"
-                        onBlur={(e) =>
-                          update.mutate({
-                            id: i.id,
-                            purchase_price: e.target.value ? Number(e.target.value) : null,
-                          })
-                        }
-                      />
-                    </td>
-                    <td className="py-2">{eur(i.price)}</td>
-                    <td className="py-2 text-muted-foreground">{eur(i.mean)}</td>
-                    <td className="py-2 text-primary">{eur(i.suggested)}</td>
-                    <td className="py-2">
-                      {i.pnl === null ? (
-                        "—"
-                      ) : (
-                        <span
-                          className={
-                            i.pnl >= 0 ? "text-emerald-400" : "text-destructive"
-                          }
-                        >
-                          {eur(i.pnl)}
+      <section className="panel p-6">
+        <div className="flex flex-wrap items-center gap-3">
+          <Button
+            size="sm"
+            variant={onlyDeals ? "default" : "secondary"}
+            onClick={() => setOnlyDeals((v) => !v)}
+          >
+            <Sparkles className="size-4" />
+            Solo chollos
+          </Button>
+          <select
+            value={condition}
+            onChange={(e) => setCondition(e.target.value)}
+            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+          >
+            <option value="">Todos los estados</option>
+            {conditions.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+          >
+            <option value="">Todos los idiomas</option>
+            {languages.map((l) => (
+              <option key={l} value={l}>
+                {l}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="mt-5 overflow-x-auto">
+          <table className="w-full min-w-[820px] text-sm">
+            <thead className="text-left text-xs uppercase tracking-wide text-muted-foreground">
+              <tr>
+                <th className="py-2">Carta</th>
+                <th className="py-2">Uds.</th>
+                <th className="py-2">Pagado</th>
+                <th className="py-2">Precio hoy</th>
+                <th className="py-2">Media</th>
+                <th className="py-2">Precio objetivo</th>
+                <th className="py-2">Ganancia</th>
+                <th className="py-2">Seguimiento</th>
+              </tr>
+            </thead>
+            <tbody>
+              {visible.map((i) => (
+                <tr key={i.id} className="border-t border-border/60">
+                  <td className="py-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{i.name}</span>
+                      {i.isDeal && (
+                        <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] uppercase text-primary">
+                          chollo
                         </span>
                       )}
-                    </td>
-                    <td className="py-2">
-                      <Button
-                        size="sm"
-                        variant={i.is_tracked ? "default" : "secondary"}
-                        onClick={() => update.mutate({ id: i.id, is_tracked: !i.is_tracked })}
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {[i.game, i.expansion, i.condition, i.language].filter(Boolean).join(" · ")}
+                    </span>
+                  </td>
+                  <td className="py-2">
+                    <Input
+                      type="number"
+                      defaultValue={i.quantity}
+                      className="h-8 w-16"
+                      onBlur={(e) =>
+                        update.mutate({ id: i.id, quantity: Number(e.target.value) || 1 })
+                      }
+                    />
+                  </td>
+                  <td className="py-2">
+                    <Input
+                      type="number"
+                      step="0.01"
+                      defaultValue={i.purchase_price ?? ""}
+                      placeholder="—"
+                      className="h-8 w-24"
+                      onBlur={(e) =>
+                        update.mutate({
+                          id: i.id,
+                          purchase_price: e.target.value ? Number(e.target.value) : null,
+                        })
+                      }
+                    />
+                  </td>
+                  <td className="py-2">{eur(i.price)}</td>
+                  <td className="py-2 text-muted-foreground">{eur(i.mean)}</td>
+                  <td className="py-2 text-primary">{eur(i.suggested)}</td>
+                  <td className="py-2">
+                    {i.pnl === null ? (
+                      "—"
+                    ) : (
+                      <span
+                        className={
+                          i.pnl >= 0 ? "text-emerald-400" : "text-destructive"
+                        }
                       >
-                        {i.is_tracked ? "Siguiendo" : "Seguir"}
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {visible.length === 0 && (
-              <p className="py-6 text-center text-sm text-muted-foreground">
-                No hay cartas que mostrar con estos filtros.
-              </p>
-            )}
-          </div>
-        </section>
-      </div>
+                        {eur(i.pnl)}
+                      </span>
+                    )}
+                  </td>
+                  <td className="py-2">
+                    <Button
+                      size="sm"
+                      variant={i.is_tracked ? "default" : "secondary"}
+                      onClick={() => update.mutate({ id: i.id, is_tracked: !i.is_tracked })}
+                    >
+                      {i.is_tracked ? "Siguiendo" : "Seguir"}
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {visible.length === 0 && (
+            <p className="py-6 text-center text-sm text-muted-foreground">
+              No hay cartas que mostrar con estos filtros.
+            </p>
+          )}
+        </div>
+      </section>
+    </div>
   );
 }
 
