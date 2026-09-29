@@ -61,7 +61,7 @@ function Landing() {
           Magic: The Gathering · Riftbound
         </p>
         <h1 className="text-balance text-5xl font-bold leading-tight sm:text-6xl">
-          Tus cartas, <span className="text-gradient-gold">al precio justo</span>
+          Tus cartas, <span className="text-gradient-purple">al precio justo</span>
         </h1>
         <p className="mx-auto mt-5 max-w-2xl text-pretty text-lg text-muted-foreground">
           Cardtrack vigila los precios de tus cartas en Cardmarket, guarda el histórico y te dice
@@ -74,10 +74,12 @@ function Landing() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-5xl gap-4 px-4 pb-24 sm:grid-cols-3">
+      <section className="mx-auto grid max-w-5xl gap-6 px-4 pb-24 sm:grid-cols-3">
         {features.map((f) => (
-          <article key={f.title} className="panel p-6">
-            <f.icon className="mb-4 size-6 text-primary" />
+          <article key={f.title} className="panel p-6 hover:bg-card/50 transition-all hover:scale-[1.02]">
+            <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary mb-4">
+              <f.icon className="size-6" />
+            </div>
             <h2 className="text-lg font-semibold">{f.title}</h2>
             <p className="mt-2 text-sm text-muted-foreground">{f.text}</p>
           </article>
