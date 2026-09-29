@@ -72,8 +72,8 @@ function Landing() {
             Magic: The Gathering · Riftbound
           </p>
           <h1 className="text-balance text-5xl font-bold leading-tight sm:text-6xl">
-            Tus cartas, <span className="text-gradient-gold">al precio justo</span>
-          </h1>
+                      Tus cartas, <span className="text-gradient-primary">al precio justo</span>
+                    </h1>
           <p className="mx-auto mt-5 max-w-2xl text-pretty text-lg text-muted-foreground">
             Cardtrack vigila los precios de tus cartas en Cardmarket, guarda el histórico y te dice
             cuáles están subiendo, bajando o quietas.
@@ -87,56 +87,56 @@ function Landing() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-16">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat) => (
-            <Card key={stat.label} className="panel">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-                    <p className="mt-1 font-display text-3xl font-bold {stat.color}">{stat.value}</p>
-                  </div>
-                  <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10">
-                    <stat.icon className="size-6 text-primary" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {stats.map((stat) => (
+                  <Card key={stat.label} className="panel-hover">
+                    <CardContent className="pt-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
+                          <p className="mt-1 font-display text-3xl font-bold {stat.color}">{stat.value}</p>
+                        </div>
+                        <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10">
+                          <stat.icon className="size-6 text-primary" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </section>
 
       <section className="mx-auto max-w-7xl px-4 py-16">
-        <div className="grid gap-6 lg:grid-cols-3">
-          {features.map((f) => (
-            <Card key={f.title} className="panel">
-              <CardHeader>
-                <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10 mb-4">
-                  <f.icon className="size-6 text-primary" />
-                </div>
-                <CardTitle className="text-lg">{f.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">{f.text}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
+              <div className="grid gap-6 lg:grid-cols-3">
+                {features.map((f) => (
+                  <Card key={f.title} className="elevated-panel">
+                    <CardHeader>
+                      <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10 mb-4">
+                        <f.icon className="size-6 text-primary" />
+                      </div>
+                      <CardTitle className="text-lg">{f.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground">{f.text}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </section>
 
       <section className="mx-auto max-w-7xl px-4 py-16">
-        <div className="panel p-8 md:p-12 text-center">
-          <h2 className="font-display text-3xl font-bold">¿Listo para controlar tus precios?</h2>
-          <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-            Únete a miles de coleccionistas que ya usan Cardtrack para no perderse ninguna oportunidad.
-          </p>
-          <div className="mt-8 flex justify-center gap-3">
-            <Button asChild size="lg">
-              <Link to="/auth">Crear cuenta gratis</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
+              <div className="glass-panel p-8 md:p-12 text-center">
+                <h2 className="font-display text-3xl font-bold text-gradient-primary">¿Listo para controlar tus precios?</h2>
+                <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+                  Únete a miles de coleccionistas que ya usan Cardtrack para no perderse ninguna oportunidad.
+                </p>
+                <div className="mt-8 flex justify-center gap-3">
+                  <Button asChild size="lg">
+                    <Link to="/auth">Crear cuenta gratis</Link>
+                  </Button>
+                </div>
+              </div>
+            </section>
 
       <footer className="border-t border-border/50 py-8">
         <div className="mx-auto max-w-7xl px-4 text-center text-sm text-muted-foreground">

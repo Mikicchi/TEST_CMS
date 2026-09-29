@@ -24,7 +24,7 @@ export function Header({ onSidebarToggle }: { onSidebarToggle: () => void }) {
   };
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-border/70 bg-background/80 backdrop-blur px-4">
+      <header className="flex h-14 items-center justify-between border-b border-border/70 glass-panel px-4">
       <div className="flex items-center gap-4">
         <Button
           variant="ghost"

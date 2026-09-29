@@ -45,13 +45,13 @@ export function Sidebar({ open, onOpenChange }: { open: boolean; onOpenChange: (
   };
 
   return (
-    <aside
-      className={cn(
-        "fixed inset-y-0 left-0 z-40 flex h-full flex-col border-r border-border/70 bg-sidebar/95 backdrop-blur transition-transform duration-300 ease-in-out",
-        open ? "w-64" : "w-20",
-      )}
-    >
-      <div className="flex h-14 items-center border-b border-sidebar-border px-4">
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-40 flex h-full flex-col border-r border-border/70 bg-sidebar/95 backdrop-blur transition-transform duration-300 ease-in-out glass-panel",
+          open ? "w-64" : "w-20",
+        )}
+      >
+        <div className="flex h-14 items-center border-b border-sidebar-border px-4">
         <Link to="/panel" className="flex items-center gap-2 overflow-hidden">
           <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
             <Spade className="size-4" />

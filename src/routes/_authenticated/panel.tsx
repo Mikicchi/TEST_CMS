@@ -103,9 +103,9 @@ function Panel() {
 
 
   const removeMutation = useMutation({
-    mutationFn: (id: string) => remove({ data: { id } }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["cards"] });
-  });
+      mutationFn: (id: string) => remove({ data: { id } }),
+      onSuccess: () => qc.invalidateQueries({ queryKey: ["cards"] }),
+    });
 
 
   const expansions = useMemo(
@@ -161,22 +161,22 @@ function Panel() {
 
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold">Panel</h1>
-          <p className="text-sm text-muted-foreground">
-            {cards.length} cartas en seguimiento · Magic y Riftbound
-          </p>
+      <div className="space-y-8">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-semibold text-gradient-primary">Panel</h1>
+            <p className="text-sm text-muted-foreground">
+              {cards.length} cartas en seguimiento · Magic y Riftbound
+            </p>
+          </div>
+          <Button onClick={() => runMutation.mutate()} disabled={runMutation.isPending}>
+            <RefreshCw className={runMutation.isPending ? "size-4 animate-spin" : "size-4"} />
+            Actualizar precios
+          </Button>
         </div>
-        <Button onClick={() => runMutation.mutate()} disabled={runMutation.isPending}>
-          <RefreshCw className={runMutation.isPending ? "size-4 animate-spin" : "size-4"} />
-          Actualizar precios
-        </Button>
-      </div>
-
-      <section className="panel p-6">
-        <h2 className="mb-4 text-lg font-semibold">Añadir carta</h2>
+  
+        <section className="panel-hover p-6">
+          <h2 className="mb-4 text-lg font-semibold">Añadir carta</h2>
         <form
           className="grid gap-4 md:grid-cols-[1fr_180px_160px_auto]"
           onSubmit={(e) => {
@@ -257,8 +257,8 @@ function Panel() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <section className="panel p-6 lg:col-span-2">
-          <h2 className="mb-4 text-lg font-semibold">Evolución de precios</h2>
+              <section className="elevated-panel p-6 lg:col-span-2">
+                <h2 className="mb-4 text-lg font-semibold text-gradient-primary">Evolución de precios</h2>
           {chartData.length === 0 ? (
             <p className="py-16 text-center text-sm text-muted-foreground">
               Todavía no hay histórico. Añade cartas y pulsa «Actualizar precios».
@@ -292,8 +292,8 @@ function Panel() {
           )}
         </section>
 
-        <section className="panel p-6">
-          <h2 className="mb-4 text-lg font-semibold">Top 10 más baratas</h2>
+        <section className="panel-hover p-6">
+                  <h2 className="mb-4 text-lg font-semibold text-gradient-primary">Top 10 más baratas</h2>
           {cheapest.length === 0 ? (
             <p className="text-sm text-muted-foreground">Sin precios todavía.</p>
           ) : (
@@ -311,11 +311,11 @@ function Panel() {
       </div>
 
       {watchlist.length > 0 && (
-        <section className="panel p-6">
-          <h2 className="mb-4 text-lg font-semibold">Cartas a seguir</h2>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            {watchlist.map((c) => (
-              <div key={c.id} className="rounded-lg border border-border bg-secondary/40 p-4">
+              <section className="panel-hover p-6">
+                <h2 className="mb-4 text-lg font-semibold text-gradient-primary">Cartas a seguir</h2>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                  {watchlist.map((c) => (
+                    <div key={c.id} className="glass-panel p-4">
                 <p className="truncate text-sm font-medium">{c.name}</p>
                 <p className="text-xs text-muted-foreground">{c.expansion ?? c.game}</p>
                 <p
@@ -336,8 +336,8 @@ function Panel() {
         </section>
       )}
 
-      <section className="panel overflow-hidden">
-        <h2 className="border-b border-border px-6 py-4 text-lg font-semibold">Mis cartas</h2>
+      <section className="elevated-panel overflow-hidden">
+              <h2 className="border-b border-border px-6 py-4 text-lg font-semibold text-gradient-primary">Mis cartas</h2>
         {filtered.length === 0 ? (
           <p className="px-6 py-10 text-center text-sm text-muted-foreground">
             No hay cartas con estos filtros.
